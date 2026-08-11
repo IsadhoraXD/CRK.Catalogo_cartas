@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Catálogo de Cartas - Cookie Run Kingdom</title>
+
+    <link rel="stylesheet" href="../public/style.css">
+</head>
+
+<body>
+
+    <!-- ==========================================
+         CABEÇALHO
+    =========================================== -->
+
+    <header class="header">
+
+        <div class="header-decoration"></div>
+
+        <div class="titulo">
+
+            <span>Catálogo de cartas</span>
+
+            <h1>Cookie Run: Kingdom</h1>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==========================================
+         LAYOUT PRINCIPAL
+    =========================================== -->
+
+    <main class="layout">
+
+
+        <!-- ======================================
+             BARRA LATERAL ESQUERDA
+        ======================================= -->
+
+        <aside class="sidebar-left">
+
+            <h2>FILTROS</h2>
+
+
+            <div class="filtro">
+
+                <label for="tipoFiltro">Tipo</label>
+
+                <select id="tipoFiltro">
+
+                    <option value="">Todos</option>
+
+                    <option value="Suporte">Suporte</option>
+
+                    <option value="Defesa">Defesa</option>
+
+                    <option value="Magia">Magia</option>
+
+                    <option value="Ataque">Ataque</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filtro">
+
+                <label for="raridadeFiltro">Raridade</label>
+
+                <select id="raridadeFiltro">
+
+                    <option value="">Todas</option>
+
+                    <option value="Comum">Comum</option>
+
+                    <option value="Raro">Raro</option>
+
+                    <option value="Épica">Épica</option>
+
+                    <option value="Lendária">Lendária</option>
+
+                    <option value="Ancestral">Ancestral</option>
+
+                </select>
+
+            </div>
+
+
+            <button id="limparFiltros" class="btn-limpar">
+                Limpar filtros
+            </button>
+
+        </aside>
+
+
+        <!-- ======================================
+             CONTEÚDO
+        ======================================= -->
+
+        <section class="conteudo">
+
+
+            <!-- PESQUISA -->
+
+            <div class="pesquisa-container">
+
+                <input
+                    type="text"
+                    id="campoPesquisa"
+                    placeholder="Pesquisar carta..."
+                    autocomplete="off"
+                >
+
+                <button id="botaoPesquisa" title="Pesquisar">
+                    🔍
+                </button>
+
+            </div>
+
+
+            <!-- INFORMAÇÕES -->
+
+            <div class="resultado-info">
+
+                <span id="contador">
+                    Carregando cartas...
+                </span>
+
+            </div>
+
+
+            <!-- ==================================
+                 CARTAS
+            =================================== -->
+
+            <div id="catalogo" class="catalogo">
+
+                <!-- As cartas serão inseridas pelo JavaScript -->
+
+            </div>
+
+
+            <!-- MENSAGEM CASO NÃO ENCONTRE -->
+
+            <div id="semResultados" class="sem-resultados">
+
+                <div class="icone-vazio">🍪</div>
+
+                <h2>Nenhuma carta encontrada</h2>
+
+                <p>
+                    Tente alterar sua pesquisa ou os filtros.
+                </p>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ======================================
+             BARRA LATERAL DIREITA
+        ======================================= -->
+
+        <aside class="sidebar-right">
+
+            <div class="decoracao-cookie">
+                🍪
+            </div>
+
+            <div class="decoracao-linha"></div>
+
+            <div class="decoracao-cookie pequeno">
+                ✦
+            </div>
+
+        </aside>
+
+    </main>
+
+
+    <!-- ==========================================
+        JAVASCRIPT
+    =========================================== -->
+
+    <script src="../public/script.js"></script>
+
+</body>
+
+</html>
