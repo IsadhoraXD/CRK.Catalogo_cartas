@@ -23,8 +23,8 @@ app.use(express.static(path.join(__dirname, "../public")));
 const db = mysql.createPool({
     host: "localhost",
     user: "root",
-    password: "123456",
-    database: "Catalogo_cartas.CRK",
+    password: "",
+    database: "catalogo_cartas_crk",
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -64,7 +64,7 @@ app.get("/api/catalogo", (req, res) => {
             tipo,
             raridade,
             custo
-        FROM catálogo
+        FROM catalogo
         ORDER BY id ASC
     `;
 

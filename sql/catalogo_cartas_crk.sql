@@ -1,3 +1,5 @@
+USE catalogo_cartas_crk;
+
 CREATE TABLE catalogo (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
