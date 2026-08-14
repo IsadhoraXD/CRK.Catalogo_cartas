@@ -7,30 +7,22 @@ const app = express();
 
 const PORT = 3000;
 
-// Permite receber JSON
 app.use(express.json());
 
-// Permite comunicação entre frontend e backend
 app.use(cors());
 
-// Arquivos públicos
 app.use(express.static(path.join(__dirname, "../public")));
-
-// ==========================================
-// CONEXÃO COM O BANCO DE DADOS
-// ==========================================
 
 const db = mysql.createPool({
     host: "localhost",
     user: "root",
     password: "",
-    database: "catalogo_cartas_crk",
+    database: "catalogo_cartas_CRK",
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
-// Testar conexão
 db.getConnection((err, connection) => {
     if (err) {
         console.error("Erro ao conectar ao banco:");
@@ -43,17 +35,9 @@ db.getConnection((err, connection) => {
     connection.release();
 });
 
-// ==========================================
-// ROTA PRINCIPAL
-// ==========================================
-
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../Frontend/index.html"));
 });
-
-// ==========================================
-// BUSCAR TODAS AS CARTAS
-// ==========================================
 
 app.get("/api/catalogo", (req, res) => {
 
@@ -63,7 +47,8 @@ app.get("/api/catalogo", (req, res) => {
             nome,
             tipo,
             raridade,
-            custo
+            custo,
+            imagem
         FROM catalogo
         ORDER BY id ASC
     `;
@@ -81,10 +66,6 @@ app.get("/api/catalogo", (req, res) => {
         res.json(results);
     });
 });
-
-// ==========================================
-// BUSCAR CARTA PELO ID
-// ==========================================
 
 app.get("/api/catalogo/:id", (req, res) => {
 
@@ -120,10 +101,6 @@ app.get("/api/catalogo/:id", (req, res) => {
         res.json(results[0]);
     });
 });
-
-// ==========================================
-// INICIAR SERVIDOR
-// ==========================================
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
