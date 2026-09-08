@@ -144,7 +144,37 @@
 
     </main>
 
-    <script src="../public/script.js"></script>
+    <script src="../public/script.js"defer></script>
+
+<div id="modalCadastro" class="modal" style="display: none;">
+<div class="modal-conteudo">
+    <h2>Nova Carta</h2>
+    <form id="formCadastro">
+<input type="text" id="novoNome" placeholder="Nome do Cookie" required />
+<select id="novoTipo" required>
+        <option value="">Selecione o Tipo</option>
+        <option value="Suporte">Suporte</option>
+        <option value="Defesa">Defesa</option>
+        <option value="Magia">Magia</option>
+        <option value="Carga">Carga</option>
+    </select>
+    <select id="novaRaridade" required>
+        <option value="">Selecione a Raridade</option>
+        <option value="Comum">Comum</option>
+        <option value="Rara">Rara</option>
+        <option value="Épica">Épica</option>
+        <option value="Lendária">Lendária</option>
+        <option value="Ancestral">Ancestral</option>
+</select>
+    <input type="number" id="novoCusto" placeholder="Custo" min="1" max="10" required />
+    <input type="text" id="novaImagem" placeholder="Nome da imagem (ex: 6.png)" />
+<div class="modal-botoes">
+        <button type="submit">Salvar</button>
+        <button type="button" onclick="fecharModal()">Cancelar</button>
+    </div>
+    </form>
+</div>
+</div>
 
 </body>
 

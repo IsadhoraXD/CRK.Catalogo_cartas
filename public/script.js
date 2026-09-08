@@ -7,14 +7,9 @@ const limparFiltros = document.getElementById("limparFiltros");
 const contador = document.getElementById("contador");
 const semResultados = document.getElementById("semResultados");
 
-// Servidor backend em Node.js
 const URL_BASE = "http://localhost:3000";
-
 let cartas = [];
 
-// ==========================================
-// 1. CARREGAR CARTAS DA API
-// ==========================================
 async function carregarCartas() {
     try {
         contador.textContent = "Carregando cartas...";
@@ -26,7 +21,7 @@ async function carregarCartas() {
         }
 
         cartas = await resposta.json();
-        console.log("Cartas recebidas:", cartas);
+        console.log("Cartas recebidas do backend:", cartas);
 
         renderizarCartas(cartas);
 
@@ -37,23 +32,16 @@ async function carregarCartas() {
         catalogo.innerHTML = `
             <div class="erro">
                 <h2>Erro ao carregar cartas</h2>
-                <p>
-                    Verifique se o servidor e o banco de dados
-                    estão funcionando.
-                </p>
+                <p>Verifique se o servidor Node e o MySQL estão ativos.</p>
             </div>
         `;
     }
 }
 
-// ==========================================
-// 2. RENDERIZAR CARTAS NA TELA
-// ==========================================
 function renderizarCartas(lista) {
     catalogo.innerHTML = "";
 
-    contador.textContent =
-        `${lista.length} carta${lista.length !== 1 ? "s" : ""} encontrada${lista.length !== 1 ? "s" : ""}`;
+    contador.textContent = `${lista.length} carta${lista.length !== 1 ? "s" : ""} encontrada${lista.length !== 1 ? "s" : ""}`;
 
     if (lista.length === 0) {
         semResultados.classList.add("ativo");
@@ -68,19 +56,12 @@ function renderizarCartas(lista) {
     });
 }
 
-// ==========================================
-// 3. CRIAR O CARD DA CARTA (HTML)
-// ==========================================
 function criarCarta(carta) {
     const div = document.createElement("article");
     const classeRaridade = normalizarClasse(carta.raridade);
 
     div.className = `carta ${classeRaridade}`;
-
-    // Busca pelo nome da imagem vindo do banco ou usa o ID (ex: 1.png, 2.png)
     const nomeImagem = carta.imagem || `${carta.id}.png`;
-    
-    // Aponta diretamente para a pasta public/imagens do Node.js (Porta 3000)
     const caminhoImagem = `${URL_BASE}/imagens/${nomeImagem}`;
 
     div.innerHTML = `
@@ -108,9 +89,6 @@ function criarCarta(carta) {
     return div;
 }
 
-// ==========================================
-// 4. FUNÇÕES AUXILIARES E FILTROS
-// ==========================================
 function normalizarClasse(texto) {
     if (!texto) return "";
     return texto
@@ -140,9 +118,6 @@ function filtrarCartas() {
     renderizarCartas(resultado);
 }
 
-// ==========================================
-// 5. LISTENERS DE EVENTOS
-// ==========================================
 campoPesquisa.addEventListener("input", filtrarCartas);
 botaoPesquisa.addEventListener("click", filtrarCartas);
 tipoFiltro.addEventListener("change", filtrarCartas);
@@ -164,5 +139,66 @@ function mostrarDetalhes(carta) {
     );
 }
 
-// Inicializar carregamento
+function renderizarCartas(lista) {
+    catalogo.innerHTML = "";
+    contador.textContent = `${lista.length} carta${lista.length !== 1 ? "s" : ""} encontrada${lista.length !== 1 ? "s" : ""}`;
+
+    lista.forEach(carta => {
+        const elemento = criarCarta(carta);
+        catalogo.appendChild(elemento);
+    });
+
+    catalogo.appendChild(criarCartaEmBranco());
+}
+
+function criarCartaEmBranco() {
+    const div = document.createElement("article");
+    div.className = "carta carta-adicionar";
+    div.innerHTML = `
+        <div class="conteudo-adicionar">
+            <span class="icone-mais">+</span>
+        </div>
+    `;
+    div.addEventListener("click", abrirModal);
+    return div;
+}
+
+function abrirModal() {
+    document.getElementById("modalCadastro").style.display = "flex";
+}
+
+function fecharModal() {
+    document.getElementById("modalCadastro").style.display = "none";
+    document.getElementById("formCadastro").reset();
+}
+
+document.getElementById("formCadastro").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const novaCarta = {
+        nome: document.getElementById("novoNome").value,
+        tipo: document.getElementById("novoTipo").value,
+        raridade: document.getElementById("novaRaridade").value,
+        custo: parseInt(document.getElementById("novoCusto").value),
+        imagem: document.getElementById("novaImagem").value || "1.png"
+    };
+
+    try {
+        const resposta = await fetch(`${URL_BASE}/api/catalogo`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(novaCarta)
+        });
+
+        if (resposta.ok) {
+            fecharModal();
+            carregarCartas();
+        } else {
+            alert("Erro ao salvar carta!");
+        }
+    } catch (erro) {
+        console.error("Erro na requisição POST:", erro);
+    }
+});
+
 carregarCartas();
