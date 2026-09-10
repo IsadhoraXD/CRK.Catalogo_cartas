@@ -3,179 +3,132 @@
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Catálogo de Cartas - Cookie Run Kingdom</title>
-
     <link rel="stylesheet" href="../public/style.css">
 </head>
 
 <body>
 
     <header class="header">
-
         <div class="header-decoration"></div>
-
         <div class="titulo">
-
             <span>Catálogo de cartas</span>
-
             <h1>Cookie Run: Kingdom</h1>
-
         </div>
-
     </header>
 
     <main class="layout">
 
         <aside class="sidebar-left">
-
             <h2>FILTROS</h2>
 
-
             <div class="filtro">
-
                 <label for="tipoFiltro">Tipo</label>
-
                 <select id="tipoFiltro">
-
                     <option value="">Todos</option>
-
                     <option value="Suporte">Suporte</option>
-
                     <option value="Defesa">Defesa</option>
-
                     <option value="Magia">Magia</option>
-
                     <option value="Ataque">Ataque</option>
-
                 </select>
-
             </div>
-
 
             <div class="filtro">
-
                 <label for="raridadeFiltro">Raridade</label>
-
                 <select id="raridadeFiltro">
-
                     <option value="">Todas</option>
-
                     <option value="Comum">Comum</option>
-
                     <option value="Raro">Raro</option>
-
                     <option value="Épica">Épica</option>
-
                     <option value="Lendária">Lendária</option>
-
                     <option value="Ancestral">Ancestral</option>
-
                 </select>
-
             </div>
-
 
             <button id="limparFiltros" class="btn-limpar">
                 Limpar filtros
             </button>
-
         </aside>
 
         <section class="conteudo">
-
             <div class="pesquisa-container">
-
                 <input
                     type="text"
                     id="campoPesquisa"
                     placeholder="Pesquisar carta..."
                     autocomplete="off"
                 >
-
                 <button id="botaoPesquisa" title="Pesquisar">
                     🔍
                 </button>
-
             </div>
 
             <div class="resultado-info">
-
                 <span id="contador">
                     Carregando cartas...
                 </span>
-
             </div>
 
-            <div id="catalogo" class="catalogo">
-
-            </div>
+            <div id="catalogo" class="catalogo"></div>
 
             <div id="semResultados" class="sem-resultados">
-
                 <div class="icone-vazio">🍪</div>
-
                 <h2>Nenhuma carta encontrada</h2>
-
-                <p>
-                    Tente alterar sua pesquisa ou os filtros.
-                </p>
-
+                <p>Tente alterar sua pesquisa ou os filtros.</p>
             </div>
-
-
         </section>
 
         <aside class="sidebar-right">
-
-            <div class="decoracao-cookie">
-                🍪
-            </div>
-
+            <div class="decoracao-cookie">🍪</div>
             <div class="decoracao-linha"></div>
-
-            <div class="decoracao-cookie pequeno">
-                ✦
-            </div>
-
+            <div class="decoracao-cookie pequeno">✦</div>
         </aside>
 
     </main>
 
-    <script src="../public/script.js"defer></script>
-
-<div id="modalCadastro" class="modal" style="display: none;">
-<div class="modal-conteudo">
-    <h2>Nova Carta</h2>
-    <form id="formCadastro">
-<input type="text" id="novoNome" placeholder="Nome do Cookie" required />
-<select id="novoTipo" required>
-        <option value="">Selecione o Tipo</option>
-        <option value="Suporte">Suporte</option>
-        <option value="Defesa">Defesa</option>
-        <option value="Magia">Magia</option>
-        <option value="Carga">Carga</option>
-    </select>
-    <select id="novaRaridade" required>
-        <option value="">Selecione a Raridade</option>
-        <option value="Comum">Comum</option>
-        <option value="Rara">Rara</option>
-        <option value="Épica">Épica</option>
-        <option value="Lendária">Lendária</option>
-        <option value="Ancestral">Ancestral</option>
-</select>
-    <input type="number" id="novoCusto" placeholder="Custo" min="1" max="10" required />
-    <input type="text" id="novaImagem" placeholder="Nome da imagem (ex: 6.png)" />
-<div class="modal-botoes">
-        <button type="submit">Salvar</button>
-        <button type="button" onclick="fecharModal()">Cancelar</button>
+    <!-- Modal de Cadastro -->
+    <div id="modalCadastro" class="modal">
+        <div class="modal-conteudo">
+            <button type="button" class="btn-fechar" onclick="fecharModal()">×</button>
+            <h2>Nova Carta</h2>
+            
+            <form id="formCadastro">
+                <div class="campo-grupo">
+                    <input type="text" id="novoNome" placeholder="Nome do Cookie" required />
+                </div>
+                <div class="campo-grupo">
+                    <select id="novoTipo" required>
+                        <option value="" disabled selected hidden>Selecione o Tipo</option>
+                        <option value="Suporte">Suporte</option>
+                        <option value="Defesa">Defesa</option>
+                        <option value="Magia">Magia</option>
+                        <option value="Ataque">Ataque</option>
+                        <option value="Carga">Carga</option>
+                    </select>
+                </div>
+                <div class="campo-grupo">
+                    <select id="novaRaridade" required>
+                        <option value="" disabled selected hidden>Selecione a Raridade</option>
+                        <option value="Comum">Comum</option>
+                        <option value="Raro">Raro</option>
+                        <option value="Épica">Épica</option>
+                        <option value="Lendária">Lendária</option>
+                        <option value="Ancestral">Ancestral</option>
+                    </select>
+                </div>
+                <div class="campo-grupo">
+                    <input type="number" id="novoCusto" placeholder="Custo (1 a 10)" min="1" max="10" required />
+                </div>
+                <div class="campo-grupo">
+                    <input type="file" id="novaImagem" accept="image/*" required />
+                </div>
+                <button type="submit" class="btn-salvar">Salvar →</button>
+            </form>
+        </div>
     </div>
-    </form>
-</div>
-</div>
 
+    <script src="../public/script.js" defer></script>
 </body>
 
 </html>

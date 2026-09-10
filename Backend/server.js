@@ -1,22 +1,49 @@
 const express = require("express");
-const mysql = require("mysql2/promise"); // Alterado para /promise
+const mysql = require("mysql2/promise");
 const cors = require("cors");
 const path = require("path");
+const multer = require("multer");
+const fs = require("fs");
 
 const app = express();
 const PORT = 3000;
 
+// Garante que a pasta 'imagens' existe no diretório Backend
+const pastaImagens = path.join(__dirname, "imagens");
+if (!fs.existsSync(pastaImagens)) {
+    fs.mkdirSync(pastaImagens, { recursive: true });
+}
+
+// Configuração do Multer com nome seguro (evita quebra por emojis ou acentos no arquivo)
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, pastaImagens);
+    },
+    filename: (req, file, cb) => {
+        // Pega a extensão (.jpg, .png)
+        const extensao = path.extname(file.originalname).toLowerCase() || '.png';
+        
+        // Gera um nome puramente numérico e único
+        const nomeUnico = `${Date.now()}-${Math.round(Math.random() * 1E9)}${extensao}`;
+        
+        cb(null, nomeUnico);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // Limite de 5MB por imagem
+});
+
 app.use(express.json());
 app.use(cors());
 
-// Servir arquivos estáticos do Frontend e Public
+// Servir arquivos estáticos do Frontend e das Imagens
 app.use(express.static(path.join(__dirname, "../Frontend")));
 app.use(express.static(path.join(__dirname, "../public")));
+app.use("/imagens", express.static(pastaImagens));
 
-// Disponibiliza as imagens publicamente no caminho http://localhost:3000/imagens/
-app.use('/imagens', express.static(path.join(__dirname, 'imagens')));
-
-// Configuração da conexão com o Banco de Dados
+// Configuração da conexão com o MySQL
 const db = mysql.createPool({
     host: "127.0.0.1",
     user: "root",
@@ -27,7 +54,7 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// Testar se o banco está respondendo no arranque do servidor
+// Testar conexão MySQL na inicialização
 (async () => {
     try {
         const connection = await db.getConnection();
@@ -38,43 +65,74 @@ const db = mysql.createPool({
     }
 })();
 
+// GET - Listar todas as cartas
 app.get("/api/catalogo", async (req, res) => {
     try {
         const [results] = await db.query(`
-            SELECT id, 
-            nome, 
-            tipo, 
-            raridade, 
-            custo, 
-            imagem 
+            SELECT id, nome, tipo, raridade, custo, imagem 
             FROM catalogo 
             ORDER BY id ASC
         `);
         res.json(results);
     } catch (err) {
-       
-        console.error("❌ Erro detalhado da consulta SQL:", err);
+        console.error("❌ Erro na consulta SQL:", err);
         res.status(500).json({ erro: err.message });
     }
 });
 
-app.post("/api/catalogo", async (req, res) => {
+// POST - Criar nova carta com tratamento do Multer e MySQL
+app.post("/api/catalogo", (req, res, next) => {
+    upload.single("imagem")(req, res, (err) => {
+        if (err) {
+            console.error("❌ ERRO NO MULTER:", err);
+            return res.status(400).json({ erro: `Erro no upload: ${err.message}` });
+        }
+        next();
+    });
+}, async (req, res) => {
     try {
-        const { nome, tipo, raridade, custo, imagem } = req.body;
-        
+        console.log("📥 Dados do form:", req.body);
+        console.log("📁 Arquivo salvo:", req.file?.filename);
+
+        const { nome, tipo, raridade, custo } = req.body;
+
+        if (!nome || !tipo || !raridade || !custo) {
+            return res.status(400).json({ erro: "Preencha todos os campos do formulário!" });
+        }
+
+        const nomeImagem = req.file ? req.file.filename : '1.png';
+
         const sql = `
             INSERT INTO catalogo (nome, tipo, raridade, custo, imagem) 
             VALUES (?, ?, ?, ?, ?)
         `;
-        
-        const [result] = await db.query(sql, [nome, tipo, raridade, custo, imagem || '1.png']);
-        res.status(201).json({ id: result.insertId, nome, tipo, raridade, custo, imagem });
+
+        const [result] = await db.query(sql, [
+            nome.trim(), 
+            tipo.trim(), 
+            raridade.trim(), 
+            parseInt(custo), 
+            nomeImagem
+        ]);
+
+        console.log("✅ Carta cadastrada com sucesso! ID:", result.insertId);
+
+        res.status(201).json({ 
+            id: result.insertId, 
+            nome, 
+            tipo, 
+            raridade, 
+            custo: parseInt(custo), 
+            imagem: nomeImagem 
+        });
+
     } catch (err) {
-        console.error("Erro ao salvar carta:", err);
-        res.status(500).json({ erro: "Erro ao cadastrar carta." });
+        console.error("❌ ERRO NO MYSQL:", err);
+        res.status(500).json({ erro: `Erro MySQL (${err.code || 'SQL_ERROR'}): ${err.message}` });
     }
 });
 
+// GET - Buscar carta por ID
 app.get("/api/catalogo/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -95,11 +153,11 @@ app.get("/api/catalogo/:id", async (req, res) => {
     }
 });
 
-// Servir a página HTML principal
+// Página principal
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../Frontend/index.html"));
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });

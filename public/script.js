@@ -21,8 +21,6 @@ async function carregarCartas() {
         }
 
         cartas = await resposta.json();
-        console.log("Cartas recebidas do backend:", cartas);
-
         renderizarCartas(cartas);
 
     } catch (erro) {
@@ -45,15 +43,16 @@ function renderizarCartas(lista) {
 
     if (lista.length === 0) {
         semResultados.classList.add("ativo");
-        return;
+    } else {
+        semResultados.classList.remove("ativo");
     }
-
-    semResultados.classList.remove("ativo");
 
     lista.forEach(carta => {
         const elemento = criarCarta(carta);
         catalogo.appendChild(elemento);
     });
+
+    catalogo.appendChild(criarCartaEmBranco());
 }
 
 function criarCarta(carta) {
@@ -89,6 +88,18 @@ function criarCarta(carta) {
     return div;
 }
 
+function criarCartaEmBranco() {
+    const div = document.createElement("article");
+    div.className = "carta carta-adicionar";
+    div.innerHTML = `
+        <div class="conteudo-adicionar">
+            <span class="icone-mais">+</span>
+        </div>
+    `;
+    div.addEventListener("click", abrirModal);
+    return div;
+}
+
 function normalizarClasse(texto) {
     if (!texto) return "";
     return texto
@@ -118,6 +129,27 @@ function filtrarCartas() {
     renderizarCartas(resultado);
 }
 
+function mostrarDetalhes(carta) {
+    alert(
+        `🍪 ${carta.nome}\n\n` +
+        `Tipo: ${carta.tipo}\n` +
+        `Raridade: ${carta.raridade}\n` +
+        `Custo: ${carta.custo}`
+    );
+}
+
+function abrirModal() {
+    document.getElementById("modalCadastro").style.display = "flex";
+}
+
+function fecharModal() {
+    document.getElementById("modalCadastro").style.display = "none";
+    document.getElementById("formCadastro").reset();
+}
+
+window.abrirModal = abrirModal;
+window.fecharModal = fecharModal;
+
 campoPesquisa.addEventListener("input", filtrarCartas);
 botaoPesquisa.addEventListener("click", filtrarCartas);
 tipoFiltro.addEventListener("change", filtrarCartas);
@@ -130,74 +162,37 @@ limparFiltros.addEventListener("click", () => {
     renderizarCartas(cartas);
 });
 
-function mostrarDetalhes(carta) {
-    alert(
-        `🍪 ${carta.nome}\n\n` +
-        `Tipo: ${carta.tipo}\n` +
-        `Raridade: ${carta.raridade}\n` +
-        `Custo: ${carta.custo}`
-    );
-}
-
-function renderizarCartas(lista) {
-    catalogo.innerHTML = "";
-    contador.textContent = `${lista.length} carta${lista.length !== 1 ? "s" : ""} encontrada${lista.length !== 1 ? "s" : ""}`;
-
-    lista.forEach(carta => {
-        const elemento = criarCarta(carta);
-        catalogo.appendChild(elemento);
-    });
-
-    catalogo.appendChild(criarCartaEmBranco());
-}
-
-function criarCartaEmBranco() {
-    const div = document.createElement("article");
-    div.className = "carta carta-adicionar";
-    div.innerHTML = `
-        <div class="conteudo-adicionar">
-            <span class="icone-mais">+</span>
-        </div>
-    `;
-    div.addEventListener("click", abrirModal);
-    return div;
-}
-
-function abrirModal() {
-    document.getElementById("modalCadastro").style.display = "flex";
-}
-
-function fecharModal() {
-    document.getElementById("modalCadastro").style.display = "none";
-    document.getElementById("formCadastro").reset();
-}
-
-document.getElementById("formCadastro").addEventListener("submit", async (e) => {
+document.getElementById("formCadastro")?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const novaCarta = {
-        nome: document.getElementById("novoNome").value,
-        tipo: document.getElementById("novoTipo").value,
-        raridade: document.getElementById("novaRaridade").value,
-        custo: parseInt(document.getElementById("novoCusto").value),
-        imagem: document.getElementById("novaImagem").value || "1.png"
-    };
+    const formData = new FormData();
+    formData.append("nome", document.getElementById("novoNome").value);
+    formData.append("tipo", document.getElementById("novoTipo").value);
+    formData.append("raridade", document.getElementById("novaRaridade").value);
+    formData.append("custo", parseInt(document.getElementById("novoCusto").value));
+
+    const arquivoImagem = document.getElementById("novaImagem").files[0];
+    if (arquivoImagem) {
+        formData.append("imagem", arquivoImagem);
+    }
 
     try {
         const resposta = await fetch(`${URL_BASE}/api/catalogo`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(novaCarta)
+            body: formData
         });
+
+        const dados = await resposta.json();
 
         if (resposta.ok) {
             fecharModal();
             carregarCartas();
         } else {
-            alert("Erro ao salvar carta!");
+            alert(`Erro ao salvar: ${dados.erro || "Verifique os dados enviados."}`);
         }
     } catch (erro) {
         console.error("Erro na requisição POST:", erro);
+        alert("Erro ao se conectar com o servidor.");
     }
 });
 
