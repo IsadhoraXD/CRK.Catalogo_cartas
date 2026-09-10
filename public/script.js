@@ -10,6 +10,33 @@ const semResultados = document.getElementById("semResultados");
 const URL_BASE = "http://localhost:3000";
 let cartas = [];
 
+// Formata para exibição visual nos cards sempre bonita com acento
+function formatarExibicaoRaridade(raridade) {
+    if (!raridade) return "Comum";
+    
+    const texto = raridade.toString().toLowerCase().trim();
+
+    if (texto.includes("pica") || texto.includes("pico")) return "Épica";
+    if (texto.includes("dria") || texto.includes("drio")) return "Lendária";
+    if (texto.includes("rar")) return "Rara";
+    if (texto.includes("anc")) return "Ancestral";
+    if (texto.includes("com")) return "Comum";
+
+    return raridade;
+}
+
+// Normaliza para filtros e CSS sem quebrar por acento
+function normalizarTexto(texto) {
+    if (!texto) return "";
+    return texto
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s/g, "")
+        .trim();
+}
+
 async function carregarCartas() {
     try {
         contador.textContent = "Carregando cartas...";
@@ -57,9 +84,10 @@ function renderizarCartas(lista) {
 
 function criarCarta(carta) {
     const div = document.createElement("article");
-    const classeRaridade = normalizarClasse(carta.raridade);
+    const raridadeFormatada = formatarExibicaoRaridade(carta.raridade);
+    const classeCssRaridade = normalizarTexto(raridadeFormatada);
 
-    div.className = `carta ${classeRaridade}`;
+    div.className = `carta ${classeCssRaridade}`;
     const nomeImagem = carta.imagem || `${carta.id}.png`;
     const caminhoImagem = `${URL_BASE}/imagens/${nomeImagem}`;
 
@@ -76,13 +104,13 @@ function criarCarta(carta) {
 
         <div class="carta-info">
             <span class="badge">${carta.tipo}</span>
-            <span class="badge">${carta.raridade}</span>
+            <span class="badge">${raridadeFormatada}</span>
             <span class="badge">Custo: ${carta.custo}</span>
         </div>
     `;
 
     div.addEventListener("click", () => {
-        mostrarDetalhes(carta);
+        mostrarDetalhes(carta, raridadeFormatada);
     });
 
     return div;
@@ -100,24 +128,17 @@ function criarCartaEmBranco() {
     return div;
 }
 
-function normalizarClasse(texto) {
-    if (!texto) return "";
-    return texto
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s/g, "");
-}
-
 function filtrarCartas() {
     const pesquisa = campoPesquisa.value.toLowerCase().trim();
     const tipo = tipoFiltro.value;
-    const raridade = raridadeFiltro.value;
+    const raridadeFiltroNorm = normalizarTexto(raridadeFiltro.value);
 
     const resultado = cartas.filter(carta => {
         const correspondePesquisa = carta.nome.toLowerCase().includes(pesquisa);
         const correspondeTipo = tipo === "" || carta.tipo === tipo;
-        const correspondeRaridade = raridade === "" || carta.raridade === raridade;
+        
+        const raridadeCartaNorm = normalizarTexto(carta.raridade);
+        const correspondeRaridade = raridadeFiltroNorm === "" || raridadeCartaNorm.includes(raridadeFiltroNorm) || raridadeFiltroNorm.includes(raridadeCartaNorm);
 
         return (
             correspondePesquisa &&
@@ -129,11 +150,11 @@ function filtrarCartas() {
     renderizarCartas(resultado);
 }
 
-function mostrarDetalhes(carta) {
+function mostrarDetalhes(carta, raridadeFormatada) {
     alert(
         `🍪 ${carta.nome}\n\n` +
         `Tipo: ${carta.tipo}\n` +
-        `Raridade: ${carta.raridade}\n` +
+        `Raridade: ${raridadeFormatada}\n` +
         `Custo: ${carta.custo}`
     );
 }
@@ -188,7 +209,7 @@ document.getElementById("formCadastro")?.addEventListener("submit", async (e) =>
             fecharModal();
             carregarCartas();
         } else {
-            alert(`Erro ao salvar: ${dados.erro || "Verifique os dados enviados."}`);
+            alert(`Erro ao salvar: ${dados.erro || "Verifique os dados."}`);
         }
     } catch (erro) {
         console.error("Erro na requisição POST:", erro);
