@@ -206,8 +206,8 @@ body {
     height: 230px;
     background: linear-gradient(
         145deg,
-        #7798c5,
-        #963ca4
+        #6ca4f4,
+        #85dad3
     );
     border-radius: 25px;
     position: relative;
@@ -301,23 +301,23 @@ body {
 }
 
 .carta.ancestral {
-    background: linear-gradient(145deg, #aec7ec, #a220a9);
+    background: linear-gradient(145deg, #89b2de, #500e67);
 }
 
 .carta.lendaria {
-    background: linear-gradient(145deg, #7be1cb, #4547ac);
+    background: linear-gradient(145deg, #77e49f, #4547ac);
 }
 
 .carta.epica {
-    background: linear-gradient(145deg, #ef4545, #932621);
+    background: linear-gradient(145deg, #ef4545, #bf0f47);
 }
 
 .carta.raro {
-    background: linear-gradient(145deg, #8cc9e5, #5686ad);
+    background: linear-gradient(145deg, #b4e2f7, #6fb2e8);
 }
 
 .carta.comum {
-    background: linear-gradient(145deg, #bdbe77, #a08a57);
+    background: linear-gradient(145deg, #beb277, #bc9d54);
 }
 
 .sem-resultados {
