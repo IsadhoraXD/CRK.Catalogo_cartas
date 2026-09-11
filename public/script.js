@@ -6,9 +6,13 @@ const raridadeFiltro = document.getElementById("raridadeFiltro");
 const limparFiltros = document.getElementById("limparFiltros");
 const contador = document.getElementById("contador");
 const semResultados = document.getElementById("semResultados");
+const btnDeletarCarta = document.getElementById("btnDeletarCarta");
+const modalConfirmarExclusao = document.getElementById("modalConfirmarExclusao");
+const btnConfirmarSim = document.getElementById("btnConfirmarSim");
 
 const URL_BASE = "http://localhost:3000";
 let cartas = [];
+let cartaSelecionadaId = null;
 
 // Formata para exibição visual nos cards sempre bonita com acento
 function formatarExibicaoRaridade(raridade) {
@@ -151,12 +155,58 @@ function filtrarCartas() {
 }
 
 function mostrarDetalhes(carta, raridadeFormatada) {
-    alert(
-        `🍪 ${carta.nome}\n\n` +
-        `Tipo: ${carta.tipo}\n` +
-        `Raridade: ${raridadeFormatada}\n` +
-        `Custo: ${carta.custo}`
-    );
+    cartaSelecionadaId = carta.id;
+    const container = document.getElementById("modalCartaContainer");
+    const modal = document.getElementById("modalDetalhes");
+
+    const cartaElemento = criarCarta(carta);
+    cartaElemento.onclick = null;
+
+    container.innerHTML = "";
+    container.appendChild(cartaElemento);
+
+    modal.style.display = "flex";
+}
+
+function fecharModalDetalhes(evento) {
+    if (!evento || evento.target.id === "modalDetalhes" || evento.target.classList.contains("btn-fechar-detalhes")) {
+        document.getElementById("modalDetalhes").style.display = "none";
+        cartaSelecionadaId = null;
+    }
+}
+
+function abrirModalConfirmacao() {
+    modalConfirmarExclusao.style.display = "flex";
+}
+
+function fecharModalConfirmacao() {
+    modalConfirmarExclusao.style.display = "none";
+}
+
+async function deletarCarta() {
+    if (!cartaSelecionadaId) return;
+
+    try {
+        const resposta = await fetch(`${URL_BASE}/api/catalogo/${cartaSelecionadaId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (resposta.ok) {
+            fecharModalConfirmacao();
+            document.getElementById("modalDetalhes").style.display = "none";
+            cartaSelecionadaId = null;
+            carregarCartas();
+        } else {
+            const dados = await resposta.json();
+            alert(`Erro ao deletar: ${dados.erro || "Tente novamente."}`);
+        }
+    } catch (erro) {
+        console.error("Erro na requisição DELETE:", erro);
+        alert("Erro ao se conectar com o servidor.");
+    }
 }
 
 function abrirModal() {
@@ -168,8 +218,13 @@ function fecharModal() {
     document.getElementById("formCadastro").reset();
 }
 
+btnDeletarCarta.addEventListener("click", abrirModalConfirmacao);
+btnConfirmarSim.addEventListener("click", deletarCarta);
+
 window.abrirModal = abrirModal;
 window.fecharModal = fecharModal;
+window.fecharModalDetalhes = fecharModalDetalhes;
+window.fecharModalConfirmacao = fecharModalConfirmacao;
 
 campoPesquisa.addEventListener("input", filtrarCartas);
 botaoPesquisa.addEventListener("click", filtrarCartas);

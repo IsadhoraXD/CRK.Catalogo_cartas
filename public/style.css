@@ -73,19 +73,11 @@ body {
     text-shadow: 2px 3px 0 #71418e;
 }
 
-/* ==========================================
-   LAYOUT
-========================================== */
-
 .layout {
     display: grid;
     grid-template-columns: 150px minmax(0, 1fr) 140px;
     min-height: calc(100vh - 120px);
 }
-
-/* ==========================================
-   SIDEBAR ESQUERDA
-========================================== */
 
 .sidebar-left {
     background: #c4bee4;
@@ -287,7 +279,6 @@ body {
     font-weight: bold;
 }
 
-/* Carta de Adicionar (+) */
 .carta-adicionar {
     background: linear-gradient(145deg, #a472db, #7a46b8);
     border: 3px dashed #ffffffaa;
@@ -309,10 +300,6 @@ body {
     font-weight: bold;
 }
 
-/* ==========================================
-   RARIDADES
-========================================== */
-
 .carta.ancestral {
     background: linear-gradient(145deg, #aec7ec, #a220a9);
 }
@@ -333,10 +320,6 @@ body {
     background: linear-gradient(145deg, #bdbe77, #a08a57);
 }
 
-/* ==========================================
-   SEM RESULTADOS
-========================================== */
-
 .sem-resultados {
     display: none;
     text-align: center;
@@ -356,10 +339,6 @@ body {
 .sem-resultados h2 {
     margin-bottom: 10px;
 }
-
-/* ==========================================
-   SIDEBAR DIREITA
-========================================== */
 
 .sidebar-right {
     background: #c4bee4;
@@ -397,10 +376,6 @@ body {
     font-size: 30px;
 }
 
-/* ==========================================
-   MODAL DE CADASTRO (CENTRALIZADA)
-========================================== */
-
 .modal {
     display: none;
     position: fixed;
@@ -408,11 +383,15 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
     justify-content: center;
     align-items: center;
     z-index: 9999;
+}
+
+#modalConfirmarExclusao {
+    z-index: 10001;
 }
 
 .modal-conteudo {
@@ -446,6 +425,120 @@ body {
     color: #2b2b48;
     cursor: pointer;
     line-height: 1;
+}
+
+/* Modal de Carta Destacada */
+.modal-carta-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 10px;
+}
+
+.modal-carta-wrapper .carta {
+    width: 280px;
+    height: 430px;
+    transform: none;
+    cursor: default;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    z-index: 1;
+}
+
+.modal-carta-wrapper .carta:hover {
+    transform: none;
+}
+
+.modal-carta-wrapper .carta-imagem {
+    height: 260px;
+}
+
+.modal-carta-wrapper .carta h3 {
+    font-size: 22px;
+    line-height: 26px;
+    margin-bottom: 10px;
+}
+
+.modal-carta-wrapper .badge {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+.btn-fechar-detalhes {
+    position: absolute;
+    top: -45px;
+    right: -30px;
+    background: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+    color: #333;
+    cursor: pointer;
+    z-index: 10002;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-deletar-topo {
+    position: relative;
+    z-index: 10000;
+    margin-bottom: 20px;
+    background-color: #ff4757;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.5);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-deletar-topo:hover {
+    background-color: #e84118;
+    transform: scale(1.05);
+}
+
+.botoes-confirmacao {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-confirmar {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-confirmar.sim {
+    background-color: #ff4757;
+    color: white;
+}
+
+.btn-confirmar.sim:hover {
+    background-color: #e84118;
+}
+
+.btn-confirmar.nao {
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+.btn-confirmar.nao:hover {
+    background-color: #e4e6eb;
 }
 
 #formCadastro {
@@ -489,10 +582,6 @@ body {
 .btn-salvar:hover {
     background-color: #5b4bc4;
 }
-
-/* ==========================================
-   RESPONSIVIDADE
-========================================== */
 
 @media (max-width: 900px) {
     .layout {

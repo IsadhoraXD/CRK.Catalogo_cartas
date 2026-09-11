@@ -88,6 +88,26 @@
 
     </main>
 
+    <!-- Modal de Detalhes da Carta -->
+    <div id="modalDetalhes" class="modal" onclick="fecharModalDetalhes(event)">
+        <div class="modal-carta-wrapper">
+            <button type="button" class="btn-fechar-detalhes" onclick="fecharModalDetalhes()">×</button>
+            <button type="button" id="btnDeletarCarta" class="btn-deletar-topo">Deletar carta</button>
+            <div id="modalCartaContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="modalConfirmarExclusao" class="modal">
+        <div class="modal-conteudo modal-confirmacao">
+            <h2>Quer mesmo deletar essa carta?</h2>
+            <div class="botoes-confirmacao">
+                <button type="button" id="btnConfirmarSim" class="btn-confirmar sim">Sim</button>
+                <button type="button" id="btnConfirmarNao" class="btn-confirmar nao" onclick="fecharModalConfirmacao()">Não</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Cadastro -->
     <div id="modalCadastro" class="modal">
         <div class="modal-conteudo">

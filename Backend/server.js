@@ -8,42 +8,41 @@ const fs = require("fs");
 const app = express();
 const PORT = 3000;
 
-// Garante que a pasta 'imagens' existe no diretório Backend
+// Habilita CORS completo para todas as origens e métodos (incluindo DELETE no Live Server)
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.use(express.json());
+
 const pastaImagens = path.join(__dirname, "imagens");
 if (!fs.existsSync(pastaImagens)) {
     fs.mkdirSync(pastaImagens, { recursive: true });
 }
 
-// Configuração do Multer com nome seguro (evita quebra por emojis ou acentos no arquivo)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, pastaImagens);
     },
     filename: (req, file, cb) => {
-        // Pega a extensão (.jpg, .png)
         const extensao = path.extname(file.originalname).toLowerCase() || '.png';
-        
-        // Gera um nome puramente numérico e único
         const nomeUnico = `${Date.now()}-${Math.round(Math.random() * 1E9)}${extensao}`;
-        
         cb(null, nomeUnico);
     }
 });
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 } // Limite de 5MB por imagem
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-app.use(express.json());
-app.use(cors());
-
-// Servir arquivos estáticos do Frontend e das Imagens
 app.use(express.static(path.join(__dirname, "../Frontend")));
 app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(__dirname, "../")));
 app.use("/imagens", express.static(pastaImagens));
 
-// Configuração da conexão com o MySQL
 const db = mysql.createPool({
     host: "127.0.0.1",
     user: "root",
@@ -54,7 +53,6 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// Testar conexão MySQL na inicialização
 (async () => {
     try {
         const connection = await db.getConnection();
@@ -80,7 +78,7 @@ app.get("/api/catalogo", async (req, res) => {
     }
 });
 
-// POST - Criar nova carta com tratamento do Multer e MySQL
+// POST - Criar carta
 app.post("/api/catalogo", (req, res, next) => {
     upload.single("imagem")(req, res, (err) => {
         if (err) {
@@ -91,9 +89,6 @@ app.post("/api/catalogo", (req, res, next) => {
     });
 }, async (req, res) => {
     try {
-        console.log("📥 Dados do form:", req.body);
-        console.log("📁 Arquivo salvo:", req.file?.filename);
-
         const { nome, tipo, raridade, custo } = req.body;
 
         if (!nome || !tipo || !raridade || !custo) {
@@ -128,32 +123,41 @@ app.post("/api/catalogo", (req, res, next) => {
 
     } catch (err) {
         console.error("❌ ERRO NO MYSQL:", err);
-        res.status(500).json({ erro: `Erro MySQL (${err.code || 'SQL_ERROR'}): ${err.message}` });
+        res.status(500).json({ erro: `Erro MySQL: ${err.message}` });
     }
 });
 
-// GET - Buscar carta por ID
-app.get("/api/catalogo/:id", async (req, res) => {
+// DELETE - Deletar carta por ID
+app.delete("/api/catalogo/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const [results] = await db.query(`
-            SELECT id, nome, tipo, raridade, custo, imagem 
-            FROM catalogo 
-            WHERE id = ?
-        `, [id]);
 
-        if (results.length === 0) {
+        const [cartas] = await db.query("SELECT imagem FROM catalogo WHERE id = ?", [id]);
+        if (cartas.length === 0) {
             return res.status(404).json({ erro: "Carta não encontrada." });
         }
 
-        res.json(results[0]);
+        const [result] = await db.query("DELETE FROM catalogo WHERE id = ?", [id]);
+
+        if (result.affectedRows > 0) {
+            const imagem = cartas[0].imagem;
+            if (imagem && imagem !== '1.png') {
+                const caminhoImagem = path.join(pastaImagens, imagem);
+                if (fs.existsSync(caminhoImagem)) {
+                    fs.unlinkSync(caminhoImagem);
+                }
+            }
+            console.log("✅ Carta deletada com sucesso! ID:", id);
+            return res.json({ mensagem: "Carta excluída com sucesso." });
+        } else {
+            return res.status(400).json({ erro: "Não foi possível excluir a carta." });
+        }
     } catch (err) {
-        console.error("Erro ao buscar carta:", err);
-        res.status(500).json({ erro: "Erro ao consultar carta." });
+        console.error("❌ ERRO NO MYSQL AO DELETAR:", err);
+        res.status(500).json({ erro: `Erro MySQL: ${err.message}` });
     }
 });
 
-// Página principal
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../Frontend/index.html"));
 });
