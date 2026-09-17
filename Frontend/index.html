@@ -10,6 +10,21 @@
 
 <body>
 
+    <div id="introOverlay" class="intro-overlay">
+        <div id="introScreen" class="intro-screen">
+            <button id="btnAbrirCatalogo" class="btn-abrir-catalogo">
+                Abrir Catálogo
+            </button>
+        </div>
+
+        <video id="videoForno" class="video-forno" playsinline>
+            <source src="../public/animacao.mp4" type="video/mp4">
+            Seu navegador não suporta vídeos.
+        </video>
+
+        <div id="fadeWhite" class="fade-white"></div>
+    </div>
+
     <header class="header">
         <div class="header-decoration"></div>
         <div class="titulo">
@@ -45,6 +60,12 @@
                     <option value="Lendaria">Lendária</option>
                     <option value="Ancestral">Ancestral</option>
                 </select>
+            </div>
+
+            <div class="filtro">
+                <button id="btnFiltroFavoritos" class="btn-filtro-favorito">
+                    ⭐ Apenas Favoritos
+                </button>
             </div>
 
             <button id="limparFiltros" class="btn-limpar">
@@ -88,16 +109,17 @@
 
     </main>
 
-    <!-- Modal de Detalhes da Carta -->
     <div id="modalDetalhes" class="modal" onclick="fecharModalDetalhes(event)">
         <div class="modal-carta-wrapper">
             <button type="button" class="btn-fechar-detalhes" onclick="fecharModalDetalhes()">×</button>
-            <button type="button" id="btnDeletarCarta" class="btn-deletar-topo">Deletar carta</button>
+            <div class="botoes-topo-modal">
+                <button type="button" id="btnFavoritarCarta" class="btn-favoritar-topo">⭐ Favoritar</button>
+                <button type="button" id="btnDeletarCarta" class="btn-deletar-topo">🗑️ Deletar</button>
+            </div>
             <div id="modalCartaContainer"></div>
         </div>
     </div>
 
-    <!-- Modal de Confirmação de Exclusão -->
     <div id="modalConfirmarExclusao" class="modal">
         <div class="modal-conteudo modal-confirmacao">
             <h2>Quer mesmo deletar essa carta?</h2>
@@ -108,7 +130,6 @@
         </div>
     </div>
 
-    <!-- Modal de Cadastro -->
     <div id="modalCadastro" class="modal">
         <div class="modal-conteudo">
             <button type="button" class="btn-fechar" onclick="fecharModal()">×</button>
@@ -116,9 +137,11 @@
             
             <form id="formCadastro">
                 <div class="campo-grupo">
-                    <input type="text" id="novoNome" placeholder="Nome do Cookie" required />
+                    <label for="novoNome">Nome do Cookie</label>
+                    <input type="text" id="novoNome" placeholder="Ex: Cookie de Gengibre" required />
                 </div>
                 <div class="campo-grupo">
+                    <label for="novoTipo">Tipo</label>
                     <select id="novoTipo" required>
                         <option value="" disabled selected hidden>Selecione o Tipo</option>
                         <option value="Suporte">Suporte</option>
@@ -129,6 +152,7 @@
                     </select>
                 </div>
                 <div class="campo-grupo">
+                    <label for="novaRaridade">Raridade</label>
                     <select id="novaRaridade" required>
                         <option value="" disabled selected hidden>Selecione a Raridade</option>
                         <option value="Comum">Comum</option>
@@ -139,12 +163,14 @@
                     </select>
                 </div>
                 <div class="campo-grupo">
-                    <input type="number" id="novoCusto" placeholder="Custo (1 a 10)" min="1" max="10" required />
+                    <label for="novoCusto">Custo de Energia</label>
+                    <input type="number" id="novoCusto" placeholder="Ex: 3" min="1" max="10" required />
                 </div>
                 <div class="campo-grupo">
+                    <label for="novaImagem">Imagem da Carta</label>
                     <input type="file" id="novaImagem" accept="image/*" required />
                 </div>
-                <button type="submit" class="btn-salvar">Salvar →</button>
+                <button type="submit" class="btn-salvar">Salvar Carta ✨</button>
             </form>
         </div>
     </div>
